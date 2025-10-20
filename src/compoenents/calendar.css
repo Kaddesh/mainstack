@@ -1,0 +1,273 @@
+/* Custom styles for react-day-picker */
+.custom-calendar {
+  font-family: inherit;
+}
+
+/* Override DayPicker container */
+.custom-calendar .rdp {
+  --rdp-cell-size: 32px;
+  --rdp-accent-color: #131316;
+  --rdp-background-color: #f7fafc;
+  margin: 0;
+}
+
+/* Custom caption with arrows at extremes */
+.custom-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.custom-caption .caption-label {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #131316;
+  flex: 1;
+  text-align: center;
+}
+
+.custom-caption .caption-nav-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  font-size: 1rem;
+  color: #131316;
+}
+
+.custom-caption .caption-nav-button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.custom-caption .caption-nav-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Hide default caption and nav */
+.custom-calendar .rdp-caption {
+  display: none;
+}
+
+.custom-calendar .rdp-nav {
+  display: none;
+}
+
+/* Week header (day names) */
+.custom-calendar .rdp-head_cell {
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #718096;
+  text-align: center;
+  padding: 0.25rem;
+}
+
+/* Day cells */
+.custom-calendar .rdp-cell,
+.custom-calendar td.rdp-day,
+.custom-calendar .rdp-day {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  
+}
+
+.custom-calendar .rdp-button,
+.custom-calendar button.rdp-button {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 0.875rem !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+}
+
+/* Hover for normal days (not selected) - no blue border */
+.custom-calendar .rdp-button:hover:not([disabled]):not(.rdp-day_selected),
+.custom-calendar button.rdp-button:hover:not([disabled]):not(.rdp-day_selected),
+.custom-calendar .rdp .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background: #f7fafc !important;
+  color: #131316 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Ensure focus (keyboard or programmatic) doesn't show blue ring; use black outline for accessibility */
+.custom-calendar .rdp-button:focus,
+.custom-calendar .rdp-button:focus-visible,
+.custom-calendar button.rdp-button:focus,
+.custom-calendar button.rdp-button:focus-visible,
+.custom-calendar .rdp .rdp-button:focus,
+.custom-calendar .rdp .rdp-button:focus-visible {
+  outline: 2px solid #131316 !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Override the global button hover/focus rules inside the calendar container */
+.custom-calendar button,
+.custom-calendar .rdp-button,
+.custom-calendar button.rdp-button {
+  border-color: transparent !important;
+}
+
+.custom-calendar button:hover,
+.custom-calendar button:focus,
+.custom-calendar button:focus-visible,
+.custom-calendar .rdp-button:hover,
+.custom-calendar .rdp-button:focus,
+.custom-calendar .rdp-button:focus-visible {
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* If the browser applies a special focus ring (e.g. -webkit-focus-ring-color), remove it explicitly */
+.custom-calendar .rdp-button:-webkit-focus-ring-color,
+.custom-calendar button.rdp-button:-webkit-focus-ring-color {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Previously verbose selected-day rules removed (consolidated below) */
+
+/* Today */
+.custom-calendar .rdp-day_today:not(.rdp-day_selected),
+.custom-calendar .rdp-day--today:not(.rdp-day--selected) {
+  font-weight: 700;
+  color: #131316;
+  border: 1px solid #131316;
+}
+
+/* Disabled days */
+.custom-calendar .rdp-button:disabled {
+  color: #cbd5e0;
+  cursor: not-allowed;
+}
+
+/* Remove default focus outline and add custom one */
+.custom-calendar .rdp-button:focus-visible {
+  outline: 2px solid #131316 !important;
+  outline-offset: 2px;
+}
+
+.custom-calendar .rdp-day_selected:focus-visible {
+  outline: 2px solid #2d3748 !important;
+  outline-offset: 2px;
+}
+
+/* Table spacing */
+.custom-calendar .rdp-table {
+  border-collapse: separate;
+  border-spacing: 0; /* reset - we'll use cell padding to create consistent gaps */
+}
+
+/* Ensure each week row has consistent height for perfect vertical alignment */
+.custom-calendar .rdp-cell,
+.custom-calendar td.rdp-day,
+.custom-calendar .rdp-day {
+  width: auto;
+  height: auto;
+  /* add 7px padding around each cell so adjacent gaps = 14px */
+  padding: 7px !important;
+  /* keep table semantics and vertically center inline content */
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+.custom-calendar .rdp button.rdp-day--selected,
+.custom-calendar button.rdp-day_selected,
+.custom-calendar button.rdp-day--selected {
+  background: #131316 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Target month grid wrapper so spacing applies at the month level */
+.custom-calendar .rdp-month,
+.custom-calendar .rdp-months,
+.custom-calendar .rdp-month_wrapper,
+.custom-calendar .rdp-months_container {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure the table inside each month uses the desired spacing */
+.custom-calendar .rdp-month .rdp-table,
+.custom-calendar .rdp-months .rdp-table,
+.custom-calendar .rdp .rdp-month .rdp-table {
+  border-spacing: 14px 14px !important;
+}
+
+/* Also target aria-selected attribute in case the library uses it */
+.custom-calendar [aria-selected="true"],
+.custom-calendar button[aria-selected="true"] {
+  background: #131316 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+/* Simplified selected-day rules (targets button elements and aria-selected for robustness) */
+.custom-calendar .rdp-button,
+.custom-calendar button.rdp-button,
+.custom-calendar .rdp-day,
+.custom-calendar td.rdp-day {
+  /* ensure calendar buttons don't inherit global button styles */
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.custom-calendar .rdp-button[aria-selected="true"],
+.custom-calendar .rdp-button.rdp-day_selected,
+.custom-calendar .rdp-button.rdp-day--selected,
+.custom-calendar [aria-selected="true"],
+.custom-calendar .rdp-day--selected,
+.custom-calendar .rdp-day_selected {
+  background: #131316 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 400 !important;
+  font-size: 0.875rem !important;
+}
+
+/* Remove hover/focus blue outlines for calendar controls */
+.custom-calendar .rdp-button:hover,
+.custom-calendar .rdp-button:focus,
+.custom-calendar .rdp-button:focus-visible,
+.custom-calendar button.rdp-button:hover,
+.custom-calendar button.rdp-button:focus,
+.custom-calendar button.rdp-button:focus-visible {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+
