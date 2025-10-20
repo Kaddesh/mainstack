@@ -5,10 +5,11 @@ import { useState } from 'react'
 
 interface TransactionTypeProps {
   onSelectionChange?: (selected: string[]) => void
-  initialSelected?: string[]
 }
 
-const TransactionType = ({ onSelectionChange, initialSelected }: TransactionTypeProps) => {
+const TransactionType = ({ onSelectionChange }: TransactionTypeProps) => {
+  const [selectedValues, setSelectedValues] = useState<string[]>([])
+
   const transactionTypes = [
     'Store Transaction',
     'Get Tipped', 
@@ -17,8 +18,6 @@ const TransactionType = ({ onSelectionChange, initialSelected }: TransactionType
     'Cashbacks',
     'Refer & Earn'
   ]
-
-  const [selectedValues, setSelectedValues] = useState<string[]>(initialSelected ?? [])
 
   const toggleSelection = (type: string) => {
     const newSelection = selectedValues.includes(type) 
@@ -38,6 +37,7 @@ const TransactionType = ({ onSelectionChange, initialSelected }: TransactionType
   return (
     <Box 
       w="412px" 
+      h="314px" 
       bg="white" 
       p="8px"
       boxShadow="0px 6px 12px 0px #5C738314, 0px 4px 8px 0px #5C738314"

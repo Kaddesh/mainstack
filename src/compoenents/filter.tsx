@@ -4,23 +4,75 @@ import {
   HStack, 
   Text, 
   Button, 
-  CloseButton
+  CloseButton,
+  Image,
+  Circle
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import Calendar from './Calendar'
 import TransactionType from './modal/transactionType'
 import TransactionStatus from './modal/transactionStatus'
+import { useFilter } from '../hooks/useFilter'
 
 const Filter = () => {
+  const {
+    startDate,
+    endDate,
+    selectedTransactionTypes,
+    selectedTransactionStatuses,
+    setStartDate,
+    setEndDate,
+    setSelectedTransactionTypes,
+    setSelectedTransactionStatuses,
+    applyFilters,
+    clearFilters,
+    getActiveFilterCount
+  } = useFilter()
+
   const [isOpen, setIsOpen] = useState(false)
-  const [startDate, setStartDate] = useState<Date | null>(new Date('2023-07-17'))
-  const [endDate, setEndDate] = useState<Date | null>(new Date('2023-08-17'))
   const [showStartCalendar, setShowStartCalendar] = useState(false)
   const [showEndCalendar, setShowEndCalendar] = useState(false)
   const [showTransactionType, setShowTransactionType] = useState(false)
-  const [selectedTransactionTypes, setSelectedTransactionTypes] = useState<string[]>(['Store Transaction'])
   const [showTransactionStatus, setShowTransactionStatus] = useState(false)
-  const [selectedTransactionStatuses, setSelectedTransactionStatuses] = useState<string[]>(['Successful'])
+
+  // Helper function to close all modals and calendars
+  const closeAllModals = () => {
+    setShowStartCalendar(false)
+    setShowEndCalendar(false)
+    setShowTransactionType(false)
+    setShowTransactionStatus(false)
+  }
+
+  // Helper function to toggle a specific modal while closing others
+  const toggleModal = (modalType: 'startCalendar' | 'endCalendar' | 'transactionType' | 'transactionStatus') => {
+    const isCurrentlyOpen = {
+      startCalendar: showStartCalendar,
+      endCalendar: showEndCalendar,
+      transactionType: showTransactionType,
+      transactionStatus: showTransactionStatus
+    }[modalType]
+
+    // Close all modals first
+    closeAllModals()
+    
+    // If the clicked modal wasn't open, open it
+    if (!isCurrentlyOpen) {
+      switch (modalType) {
+        case 'startCalendar':
+          setShowStartCalendar(true)
+          break
+        case 'endCalendar':
+          setShowEndCalendar(true)
+          break
+        case 'transactionType':
+          setShowTransactionType(true)
+          break
+        case 'transactionStatus':
+          setShowTransactionStatus(true)
+          break
+      }
+    }
+  }
 
   const handleTransactionTypeChange = (selected: string[]) => {
     setSelectedTransactionTypes(selected)
@@ -30,16 +82,21 @@ const Filter = () => {
     setSelectedTransactionStatuses(selected)
   }
 
+  const handleApply = () => {
+    applyFilters()
+    setIsOpen(false)
+  }
+
   const getTransactionTypeDisplay = () => {
     if (selectedTransactionTypes.length === 0) {
-      return 'Store Transaction'
+      return ''
     }
     return selectedTransactionTypes.join(', ')
   }
 
   const getTransactionStatusDisplay = () => {
     if (selectedTransactionStatuses.length === 0) {
-      return 'Successful'
+      return ''
     }
     return selectedTransactionStatuses.join(', ')
   }
@@ -53,39 +110,18 @@ const Filter = () => {
     })
   }
 
-  const handleQuickFilter = (period: string) => {
-    const today = new Date()
-    let start = new Date()
-    
-    switch (period) {
-      case 'Today':
-        start = new Date()
-        setStartDate(start)
-        setEndDate(today)
-        break
-      case 'Last 7 days':
-        start.setDate(today.getDate() - 7)
-        setStartDate(start)
-        setEndDate(today)
-        break
-      case 'This month':
-        start = new Date(today.getFullYear(), today.getMonth(), 1)
-        setStartDate(start)
-        setEndDate(today)
-        break
-      case 'Last 3 months':
-        start.setMonth(today.getMonth() - 3)
-        setStartDate(start)
-        setEndDate(today)
-        break
+  // Use context-provided quick filter setter when available
+  // setQuickFilter updates start/end dates according to the selected quick period
+  const { setQuickFilter } = useFilter()
+
+  const handleQuickFilter = (period: 'Today' | 'Last 7 days' | 'This month' | 'Last 3 months' | 'All Time') => {
+    if (setQuickFilter) {
+      setQuickFilter(period)
     }
   }
 
   const handleClear = () => {
-    setStartDate(null)
-    setEndDate(null)
-    setSelectedTransactionTypes([])
-    setSelectedTransactionStatuses([])
+    clearFilters()
   }
 
   return (
@@ -98,10 +134,24 @@ const Filter = () => {
         px={6}
         py={3}
         fontWeight="semibold"
-        fontSize="base"
+        fontSize="16px"
         _hover={{ bg: '#C4C9D0' }}
+        position="relative"
       >
-        Filter ↓
+        Filter
+        {getActiveFilterCount() > 0 && (
+          <Circle
+            size="20px"
+            bg="black"
+            color="white"
+            fontSize="12px"
+            fontWeight="bold"
+            
+          >
+            {getActiveFilterCount()}
+          </Circle>
+        )}
+        <Image src="/expand_more.svg" alt="filter" color="#131316" w="11px" h="6px" ml={2} />
       </Button>
 
       {isOpen && (
@@ -134,7 +184,7 @@ const Filter = () => {
             <Box p={6} pb={0}>
               <HStack justify="space-between" mb={6}>
                 <Text fontSize="24px" fontWeight="bold">Filter</Text>
-                <CloseButton onClick={() => setIsOpen(false)} />
+                <CloseButton onClick={() => setIsOpen(false)} bg="none" h="13px"  w="13px"/>
               </HStack>
             </Box>
 
@@ -143,7 +193,7 @@ const Filter = () => {
               <VStack gap={6} align="stretch">
             {/* Quick Filter Buttons */}
             <HStack gap={3} wrap="wrap">
-              {['Today', 'Last 7 days', 'This month', 'Last 3 months'].map((period) => (
+              {(['Today', 'Last 7 days', 'This month', 'Last 3 months'] as Array<'Today' | 'Last 7 days' | 'This month' | 'Last 3 months'>).map((period) => (
                 <Button
                   key={period}
                   size="sm"
@@ -171,23 +221,19 @@ const Filter = () => {
                     w="full"
                     px="16px"
                     py="14px"
+                    size="sm"
                     borderRadius="12px"
                     border="1px"
                     borderColor="gray.200"
                     bg="#EFF1F6"
                     justifyContent="space-between"
-                    fontSize="base"
+                    fontSize="14px"
                     color="black"
                     minW="203px"
-                    onClick={() => {
-                      setShowStartCalendar(!showStartCalendar)
-                      setShowEndCalendar(false)
-                    }}
+                    onClick={() => toggleModal('startCalendar')}
                   >
                     <Text as="span">{formatDate(startDate)}</Text>
-                    <Text as="span" fontSize="sm" color="gray.500">
-                      ▼
-                    </Text>
+                    <Image src="/expand_more.svg" alt="expand more" color="#31373D" w="8px" h="5px" ml={2} />
                   </Button>
                   <Calendar
                     selectedDate={startDate || undefined}
@@ -209,18 +255,13 @@ const Filter = () => {
                     borderColor="gray.200"
                     bg="#EFF1F6"
                     justifyContent="space-between"
-                    fontSize="base"
+                    fontSize="14px"
                     color="black"
                     minW="203px"
-                    onClick={() => {
-                      setShowEndCalendar(!showEndCalendar)
-                      setShowStartCalendar(false)
-                    }}
+                    onClick={() => toggleModal('endCalendar')}
                   >
                     <Text as="span">{formatDate(endDate)}</Text>
-                    <Text as="span" fontSize="sm" color="gray.500">
-                      ▼
-                    </Text>
+                    <Image src="/expand_more.svg" alt="expand more" color="#31373D" w="8px" h="5px" ml={2} />
                   </Button>
                   <Calendar
                     selectedDate={endDate || undefined}
@@ -229,6 +270,7 @@ const Filter = () => {
                       setShowEndCalendar(false)
                     }}
                     isOpen={showEndCalendar}
+                    align="right"
                   />
                 </Box>
               </HStack>
@@ -254,11 +296,7 @@ const Filter = () => {
                   overflow="hidden"
                   whiteSpace="nowrap"
                   textOverflow="ellipsis"
-                  onClick={() => {
-                    setShowTransactionType(!showTransactionType)
-                    setShowStartCalendar(false)
-                    setShowEndCalendar(false)
-                  }}
+                  onClick={() => toggleModal('transactionType')}
                 >
                   <Text 
                     as="span" 
@@ -278,7 +316,7 @@ const Filter = () => {
                     transform={showTransactionType ? "rotate(180deg)" : "rotate(0deg)"}
                     transition="transform 0.2s ease"
                   >
-                    ▼
+                    <Image src="/expand_more.svg" alt="expand more" color="#31373D" w="8px" h="5px" ml={2} />
                   </Text>
                 </Button>
                 {showTransactionType && (
@@ -289,7 +327,7 @@ const Filter = () => {
                     zIndex={1001}
                     mt={1}
                   >
-                    <TransactionType onSelectionChange={handleTransactionTypeChange} />
+                    <TransactionType onSelectionChange={handleTransactionTypeChange} initialSelected={selectedTransactionTypes} />
                   </Box>
                 )}
               </Box>
@@ -315,12 +353,7 @@ const Filter = () => {
                   overflow="hidden"
                   whiteSpace="nowrap"
                   textOverflow="ellipsis"
-                  onClick={() => {
-                    setShowTransactionStatus(!showTransactionStatus)
-                    setShowStartCalendar(false)
-                    setShowEndCalendar(false)
-                    setShowTransactionType(false)
-                  }}
+                  onClick={() => toggleModal('transactionStatus')}
                 >
                   <Text 
                     as="span" 
@@ -340,7 +373,7 @@ const Filter = () => {
                     transform={showTransactionStatus ? "rotate(180deg)" : "rotate(0deg)"}
                     transition="transform 0.2s ease"
                   >
-                    ▼
+                   <Image src="/expand_more.svg" alt="expand more" color="#31373D" w="8px" h="5px" ml={2} />
                   </Text>
                 </Button>
                 {showTransactionStatus && (
@@ -351,7 +384,7 @@ const Filter = () => {
                     zIndex={1001}
                     mt={1}
                   >
-                    <TransactionStatus onSelectionChange={handleTransactionStatusChange} />
+                    <TransactionStatus onSelectionChange={handleTransactionStatusChange} initialSelected={selectedTransactionStatuses} />
                   </Box>
                 )}
               </Box>
@@ -385,6 +418,7 @@ const Filter = () => {
                   borderRadius="full"
                   fontSize="14px"            
                   color="#ffffff"
+                  onClick={handleApply}
                 >
                   Apply
                 </Button>

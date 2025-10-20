@@ -5,16 +5,17 @@ import { useState } from 'react'
 
 interface TransactionStatusProps {
   onSelectionChange?: (selected: string[]) => void
+  initialSelected?: string[]
 }
 
-const TransactionStatus = ({ onSelectionChange }: TransactionStatusProps) => {
+const TransactionStatus = ({ onSelectionChange, initialSelected }: TransactionStatusProps) => {
   const transactionStatuses = [
     'Successful',
     'Pending', 
     'Failed'
   ]
 
-  const [selectedValues, setSelectedValues] = useState<string[]>([transactionStatuses[0]])
+  const [selectedValues, setSelectedValues] = useState<string[]>(initialSelected ?? [])
 
   const toggleSelection = (status: string) => {
     const newSelection = selectedValues.includes(status) 

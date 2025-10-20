@@ -119,12 +119,14 @@ const Chart = () => {
   const endDate = chartData[chartData.length - 1]?.displayDate || ''
 
   return (
-    <Box maxWidth="765px" maxHeight="257px" width="100%">
+    <Box maxWidth="765px" maxHeight="257px" width="100%" minWidth="400px">
       {/* Chart Container */}
-      <Box width="100%" height="200px" mb={4} bg="gray.50">
-        <ResponsiveContainer width="100%" height="100%">
+      <Box width="100%" height="200px" mb={4} bg="gray.50" minHeight="200px">
+        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
           <LineChart
             data={chartData}
+            width={765}
+            height={200}
             margin={{
               top: 20,
               right: 20,
