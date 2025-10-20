@@ -26,7 +26,8 @@ const Filter = () => {
     setSelectedTransactionStatuses,
     applyFilters,
     clearFilters,
-    getActiveFilterCount
+    getActiveFilterCount,
+    quickFilter
   } = useFilter()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -124,6 +125,28 @@ const Filter = () => {
     clearFilters()
   }
 
+  // Determine if there are pending selections to apply
+  const getDefaultDatesLocal = () => {
+    const today = new Date()
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(today.getDate() - 7)
+    return { start: sevenDaysAgo, end: today }
+  }
+
+  const isSameDay = (a?: Date | null, b?: Date | null) => {
+    if (!a || !b) return false
+    return a.toDateString() === b.toDateString()
+  }
+
+  const defaults = getDefaultDatesLocal()
+  const hasTypes = selectedTransactionTypes.length > 0
+  const hasStatuses = selectedTransactionStatuses.length > 0
+  const hasQuickFilterChange = quickFilter && quickFilter !== 'Last 7 days'
+  const hasDateChange = startDate && endDate
+    ? !(isSameDay(startDate, defaults.start) && isSameDay(endDate, defaults.end))
+    : false
+  const hasPendingChanges = !!(hasTypes || hasStatuses || hasQuickFilterChange || hasDateChange)
+
   return (
     <Box>
       <Button 
@@ -131,12 +154,13 @@ const Filter = () => {
         bg="#DBDEE5"
         color="#131316"
         borderRadius="full"
-        px={6}
+        px={{ base: 4, md: 6 }}
         py={3}
         fontWeight="semibold"
-        fontSize="16px"
+        fontSize={{ base: "14px", md: "16px" }}
         _hover={{ bg: '#C4C9D0' }}
         position="relative"
+        flex={{ base: "1", sm: "0" }}
       >
         Filter
         {getActiveFilterCount() > 0 && (
@@ -167,43 +191,43 @@ const Filter = () => {
           justifyContent="center"
           zIndex={1000}
           overflowY="auto"
-          p={4}
-          pt={8}
+          p={{ base: 0, md: 4 }}
+          pt={{ base: 0, md: 8 }}
         >
           <Box 
             bg="white" 
-            borderRadius="lg" 
-            maxW="456px" 
+            borderRadius={{ base: "0", md: "lg" }}
+            maxW={{ base: "100%", md: "456px" }}
             w="full"
-            h="876px"
-            maxH="876px"
+            h={{ base: "100vh", md: "876px" }}
+            maxH={{ base: "100vh", md: "876px" }}
             display="flex"
             flexDirection="column"
           >
             {/* Header */}
-            <Box p={6} pb={0}>
-              <HStack justify="space-between" mb={6}>
-                <Text fontSize="24px" fontWeight="bold">Filter</Text>
+            <Box p={{ base: 4, md: 6 }} pb={0}>
+              <HStack justify="space-between" mb={{ base: 4, md: 6 }}>
+                <Text fontSize={{ base: "20px", md: "24px" }} fontWeight="bold">Filter</Text>
                 <CloseButton onClick={() => setIsOpen(false)} bg="none" h="13px"  w="13px"/>
               </HStack>
             </Box>
 
             {/* Scrollable Content */}
-            <Box flex="1" overflowY="auto" px={6}>
-              <VStack gap={6} align="stretch">
+            <Box flex="1" overflowY="auto" px={{ base: 4, md: 6 }}>
+              <VStack gap={{ base: 4, md: 6 }} align="stretch">
             {/* Quick Filter Buttons */}
-            <HStack gap={3} wrap="wrap">
+            <HStack gap={{ base: 2, md: 3 }} wrap="wrap">
               {(['Today', 'Last 7 days', 'This month', 'Last 3 months'] as Array<'Today' | 'Last 7 days' | 'This month' | 'Last 3 months'>).map((period) => (
                 <Button
                   key={period}
                   size="sm"
                   bg="#EFF1F6"
                   color="black"
-                  px="18px"
+                  px={{ base: "14px", md: "18px" }}
                   py="10px"
                   border="1px"
                   borderColor="gray.200"
-                  fontSize="14px"
+                  fontSize={{ base: "13px", md: "14px" }}
                   _hover={{ bg: "gray.100" }}
                   onClick={() => handleQuickFilter(period)}
                 >
@@ -214,9 +238,9 @@ const Filter = () => {
 
             {/* Date Range */}
             <Box>
-              <Text fontSize="16px" fontWeight="semibold" mb={3}>Date Range</Text>
-              <HStack gap={3}>
-                <Box position="relative" flex={1}>
+              <Text fontSize={{ base: "15px", md: "16px" }} fontWeight="semibold" mb={3}>Date Range</Text>
+              <HStack gap={3} flexDirection={{ base: "column", sm: "row" }}>
+                <Box position="relative" flex={1} width={{ base: "100%", sm: "auto" }}>
                   <Button
                     w="full"
                     px="16px"
@@ -229,7 +253,7 @@ const Filter = () => {
                     justifyContent="space-between"
                     fontSize="14px"
                     color="black"
-                    minW="203px"
+                    minW={{ base: "100%", sm: "203px" }}
                     onClick={() => toggleModal('startCalendar')}
                   >
                     <Text as="span">{formatDate(startDate)}</Text>
@@ -245,7 +269,7 @@ const Filter = () => {
                   />
                 </Box>
 
-                <Box position="relative" flex={1}>
+                <Box position="relative" flex={1} width={{ base: "100%", sm: "auto" }}>
                   <Button
                     w="full"
                     px="16px"
@@ -257,7 +281,7 @@ const Filter = () => {
                     justifyContent="space-between"
                     fontSize="14px"
                     color="black"
-                    minW="203px"
+                    minW={{ base: "100%", sm: "203px" }}
                     onClick={() => toggleModal('endCalendar')}
                   >
                     <Text as="span">{formatDate(endDate)}</Text>
@@ -278,7 +302,7 @@ const Filter = () => {
 
             {/* Transaction Type */}
             <Box>
-              <Text fontSize="16px" fontWeight="semibold" mb={3}>Transaction Type</Text>
+              <Text fontSize={{ base: "15px", md: "16px" }} fontWeight="semibold" mb={3}>Transaction Type</Text>
               <Box position="relative">
                 <Button
                   w="full"
@@ -291,7 +315,7 @@ const Filter = () => {
                   justifyContent="start"
                   fontSize="14px"
                   color="black"
-                  minW="203px"
+                  minW={{ base: "100%", sm: "203px" }}
                   textAlign="left"
                   overflow="hidden"
                   whiteSpace="nowrap"
@@ -326,6 +350,7 @@ const Filter = () => {
                     left={0}
                     zIndex={1001}
                     mt={1}
+                    maxW={{ base: "100vw", md: "412px" }}
                   >
                     <TransactionType onSelectionChange={handleTransactionTypeChange} initialSelected={selectedTransactionTypes} />
                   </Box>
@@ -335,7 +360,7 @@ const Filter = () => {
 
             {/* Transaction Status */}
             <Box>
-              <Text fontSize="16px" fontWeight="semibold" mb={3}>Transaction Status</Text>
+              <Text fontSize={{ base: "15px", md: "16px" }} fontWeight="semibold" mb={3}>Transaction Status</Text>
               <Box position="relative">
                 <Button
                   w="full"
@@ -348,7 +373,7 @@ const Filter = () => {
                   justifyContent="start"
                   fontSize="14px"
                   color="black"
-                  minW="203px"
+                  minW={{ base: "100%", sm: "203px" }}
                   textAlign="left"
                   overflow="hidden"
                   whiteSpace="nowrap"
@@ -383,6 +408,7 @@ const Filter = () => {
                     left={0}
                     zIndex={1001}
                     mt={1}
+                    maxW={{ base: "100vw", md: "412px" }}
                   >
                     <TransactionStatus onSelectionChange={handleTransactionStatusChange} initialSelected={selectedTransactionStatuses} />
                   </Box>
@@ -394,13 +420,13 @@ const Filter = () => {
             </Box>
 
             {/* Fixed Action Buttons at Bottom */}
-            <Box p={6} pt={4} borderTop="1px" borderColor="gray.100">
-              <HStack justify="space-between">
+            <Box p={{ base: 4, md: 6 }} pt={4} borderTop="1px" borderColor="gray.100">
+              <HStack justify="space-between" gap={{ base: 2, md: 0 }}>
                 <Button
                   bg="white"
-                  px="24px"
+                  px={{ base: "20px", md: "24px" }}
                   py="12px"
-                  width="198px"
+                  width={{ base: "48%", md: "198px" }}
                   borderRadius="full"
                   border="1px solid"
                   borderColor="gray.300"
@@ -411,13 +437,14 @@ const Filter = () => {
                   Clear
                 </Button>
                 <Button
-                  bg="#DBDEE5"
-                  px="24px"
+                  bg={hasPendingChanges ? '#131316' : '#DBDEE5'}
+                  px={{ base: "20px", md: "24px" }}
                   py="12px"
-                  width="198px"
+                  width={{ base: "48%", md: "198px" }}
                   borderRadius="full"
                   fontSize="14px"            
                   color="#ffffff"
+                  _hover={{ bg: hasPendingChanges ? '#000000' : '#C4C9D0' }}
                   onClick={handleApply}
                 >
                   Apply
