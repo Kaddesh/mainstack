@@ -22,8 +22,9 @@ const NavItem = ({ icon, label, isActive = false, iconWidth = "20px", iconHeight
       width="112px"
       p={2}
       transition="all 0.2s"
+      border="1px solid transparent"
       _hover={{
-        bg: isActive ? 'black' : 'gray.100',
+        borderColor: 'black',
         transform: 'scale(1.05)',
       }}
     >
