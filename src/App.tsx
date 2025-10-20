@@ -11,7 +11,7 @@ const App = () => {
     <Box pb="100px">
       <AppBar />
       <Navigation />
-      <Box width="1159px" maxWidth="1159px" mx="auto">
+      <Box width="1000px" maxWidth="1440px" mx="auto">
         <VStack gap={32} align="stretch">
           <AvailableBalance />
           <Transaction />
