@@ -1,71 +1,57 @@
-import { Box, HStack, Text, Button, Grid } from '@chakra-ui/react'
-import { useState } from 'react'
+import { Box } from '@chakra-ui/react'
+import { DayPicker, type MonthCaptionProps, useNavigation } from 'react-day-picker'
+import 'react-day-picker/dist/style.css'
+import './calendar.css'
 
 interface CalendarProps {
   selectedDate?: Date
   onDateSelect?: (date: Date) => void
   isOpen?: boolean
+  align?: 'left' | 'right'
 }
 
-const Calendar = ({ selectedDate = new Date(), onDateSelect, isOpen = false }: CalendarProps) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ]
-
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    const startingDay = firstDay.getDay()
-
-    const days = []
-    
-    // Empty cells for days before the first day of the month
-    for (let i = 0; i < startingDay; i++) {
-      days.push(null)
-    }
-    
-    // Days of the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day))
-    }
-    
-    return days
+// Custom caption component with arrows at extremes
+function CustomCaption(props: MonthCaptionProps) {
+  const { goToMonth, nextMonth, previousMonth } = useNavigation()
+  
+  const formatCaption = (date: Date) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    return `${months[date.getMonth()]} ${date.getFullYear()}`
   }
 
-  const handlePrevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
-  }
+  return (
+    <div className="custom-caption">
+      <button
+        disabled={!previousMonth}
+        onClick={() => previousMonth && goToMonth(previousMonth)}
+        className="caption-nav-button"
+      >
+        ←
+      </button>
+      <span className="caption-label">{formatCaption(props.calendarMonth.date)}</span>
+      <button
+        disabled={!nextMonth}
+        onClick={() => nextMonth && goToMonth(nextMonth)}
+        className="caption-nav-button"
+      >
+        →
+      </button>
+    </div>
+  )
+}
 
-  const handleNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
-  }
-
-  const handleDateClick = (date: Date | null) => {
-    if (date && onDateSelect) {
-      onDateSelect(date)
-    }
-  }
-
-  const isSelectedDate = (date: Date | null) => {
-    if (!date || !selectedDate) return false
-    return date.toDateString() === selectedDate.toDateString()
-  }
-
+  const Calendar = ({ selectedDate, onDateSelect, isOpen = false, align = 'left' }: CalendarProps) => {
   if (!isOpen) return null
 
   return (
     <Box
       position="absolute"
       top="100%"
-      left={0}
+      left={align === 'left' ? 0 : 'auto'}
+      right={align === 'right' ? 0 : 'auto'}
       zIndex={1000}
       bg="white"
       border="1px solid"
@@ -73,47 +59,24 @@ const Calendar = ({ selectedDate = new Date(), onDateSelect, isOpen = false }: C
       borderRadius="md"
       boxShadow="lg"
       p={4}
-      minW="280px"
+      minW="300px"
+      className="custom-calendar"
     >
-      {/* Calendar Header */}
-      <HStack justify="space-between" mb={4}>
-        <Button size="sm" variant="ghost" onClick={handlePrevMonth}>
-          ←
-        </Button>
-        <Text fontWeight="bold" fontSize="md">
-          {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </Text>
-        <Button size="sm" variant="ghost" onClick={handleNextMonth}>
-          →
-        </Button>
-      </HStack>
-
-      {/* Days of Week */}
-      <Grid templateColumns="repeat(7, 1fr)" gap={1} mb={2}>
-        {daysOfWeek.map((day) => (
-          <Text key={day} textAlign="center" fontSize="sm" fontWeight="bold" color="gray.500">
-            {day}
-          </Text>
-        ))}
-      </Grid>
-
-      {/* Calendar Days */}
-      <Grid templateColumns="repeat(7, 1fr)" gap={1}>
-        {getDaysInMonth(currentMonth).map((date, index) => (
-          <Button
-            key={index}
-            size="sm"
-            variant={isSelectedDate(date) ? 'solid' : 'ghost'}
-            colorScheme={isSelectedDate(date) ? 'blue' : 'gray'}
-            onClick={() => handleDateClick(date)}
-            disabled={!date}
-            minH="32px"
-            fontSize="sm"
-          >
-            {date ? date.getDate() : ''}
-          </Button>
-        ))}
-      </Grid>
+      <DayPicker
+        mode="single"
+        selected={selectedDate}
+        onSelect={(date) => {
+          if (date && onDateSelect) {
+            onDateSelect(date)
+          }
+        }}
+        showOutsideDays={false}
+        defaultMonth={selectedDate}
+        weekStartsOn={1}
+        components={{
+          MonthCaption: CustomCaption
+        }}
+      />
     </Box>
   )
 }
