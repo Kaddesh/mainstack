@@ -98,10 +98,12 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
 
   const clearFilters = () => {
     const newDefaults = getDefaultDates()
-    setStartDate(newDefaults.start)
-    setEndDate(newDefaults.end)
-    setSelectedTransactionTypes([])
-    setSelectedTransactionStatuses([])
+    // Use internal setters to avoid exclusive-clearing logic
+    _setStartDate(newDefaults.start)
+    _setEndDate(newDefaults.end)
+    _setSelectedTransactionTypes([])
+    _setSelectedTransactionStatuses([])
+    setQuickFilterState('Last 7 days')
     setIsApplied(false)
   }
 
